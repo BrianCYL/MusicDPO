@@ -32,9 +32,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--peft_model", type=str, default="./checkpoints-30/musicgen-dpo_epoch_10/")
+    parser.add_argument("--peft_model", type=str, default="../checkpoints-30/musicgen-dpo_epoch_10/")
     parser.add_argument("--base_model", type=str, default="facebook/musicgen-small")
-    parser.add_argument("--output_dir", type=str, default="./output")
+    parser.add_argument("--output_dir", type=str, default="../output")
     args = parser.parse_args()
     main(args)
 

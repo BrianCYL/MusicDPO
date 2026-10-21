@@ -8,7 +8,11 @@ The training objective combines:
 - DPO loss between preferred and rejected audio tokens; and
 - a contrastive CLAP loss between the text prompt and generated audio.
 
-The workflow is summarized in the [workflow chart](./model.pdf).
+## Workflow
+
+The training workflow is shown below.
+
+![MusicDPO workflow](./figure/model.png)
 
 ## Setup
 
@@ -23,7 +27,7 @@ the corresponding files from the project distribution. The pretrained
 MusicGen, EnCodec, and CLAP models are downloaded automatically from Hugging
 Face on first use.
 
-Run commands from the `MusicDPO/` directory. GPU execution is recommended
+Run commands from the `MusicDPO/code/`. GPU execution is recommended
 because the trainer uses 8-bit model loading and the paged optimizer through
 `bitsandbytes`.
 
@@ -41,8 +45,11 @@ Place the training data and CLAP checkpoint in the project directory:
 
 ```text
 MusicDPO/
-├── trainer.py
-├── inference.py
+├── code/
+│   ├── trainer.py
+│   ├── trainer_wo_CLAP.py
+│   ├── inference.py
+│   └── train.sh
 ├── music_label_genre.csv
 ├── train_segments_25sec/
 │   └── *.wav
@@ -50,6 +57,10 @@ MusicDPO/
 │   └── *.wav
 └── clap_model_epoch_29.pth
 ```
+
+The `train_segments_25sec/` and `output_wav/` directories are required by
+`code/trainer.py`. The `tokenized_outcome/` and checkpoint directories are
+created during training and do not need to exist beforehand.
 
 The CSV must contain at least:
 
@@ -67,10 +78,10 @@ waveform lengths are retained by the current script.
 
 ## Training
 
-Start DPO fine-tuning with the default configuration:
+Start DPO fine-tuning with the default configuration from the project root:
 
 ```bash
-python trainer.py
+python code/trainer.py
 ```
 
 The default training settings are:
@@ -107,7 +118,7 @@ checkpoints/
 To train for more epochs or choose another output directory:
 
 ```bash
-python trainer.py \
+python code/trainer.py \
   --epochs 10 \
   --batch_size 4 \
   --accumulation_steps 8 \
@@ -123,7 +134,7 @@ files match the trainer's expected names and preprocessing configuration.
 Optional Weights & Biases logging:
 
 ```bash
-python trainer.py \
+python code/trainer.py \
   --use_wandb \
   --wandb_project musicgen-dpo \
   --wandb_run_name musicgen-dpo-small
@@ -131,11 +142,11 @@ python trainer.py \
 
 ## Inference
 
-Generate audio from the fixed prompt in `inference.py` and compare the
+Generate audio from the fixed prompt in `code/inference.py` and compare the
 fine-tuned adapter with the original MusicGen model:
 
 ```bash
-python inference.py \
+python code/inference.py \
   --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
   --base_model facebook/musicgen-small \
   --output_dir ./output
@@ -164,13 +175,13 @@ model.
 From `MusicDPO/`:
 
 ```bash
-python trainer.py \
+python code/trainer.py \
   --epochs 1 \
   --batch_size 4 \
   --accumulation_steps 8 \
   --save_model_path ./checkpoints/musicgen-dpo
 
-python inference.py \
+python code/inference.py \
   --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
   --base_model facebook/musicgen-small \
   --output_dir ./output

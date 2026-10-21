@@ -202,12 +202,12 @@ class DPOTrainer():
     def get_data_loader(self):
         print("Audio Loading...")
         # check if tokenized outcome exists
-        if glob.glob('./tokenized_outcome/*'):
+        if glob.glob('../tokenized_outcome/*'):
             print("Found tokenized outcome!")
-            input_ids = torch.load('./tokenized_outcome/input_ids.pt')
-            attention_mask = torch.load('./tokenized_outcome/attention_mask.pt')
-            pref_audio_inputs = torch.load('./tokenized_outcome/pref_audio.pt')
-            rej_audio_inputs = torch.load('./tokenized_outcome/rej_audio.pt')
+            input_ids = torch.load('../tokenized_outcome/input_ids.pt')
+            attention_mask = torch.load('../tokenized_outcome/attention_mask.pt')
+            pref_audio_inputs = torch.load('../tokenized_outcome/pref_audio.pt')
+            rej_audio_inputs = torch.load('../tokenized_outcome/rej_audio.pt')
             print("Data Shape:", input_ids.shape, attention_mask.shape, pref_audio_inputs.shape, rej_audio_inputs.shape)
             self.dataset = Dataset.from_dict({'input_ids': input_ids, 'attention_mask': attention_mask, 'pref_audio_tokens': pref_audio_inputs, 'rej_audio_tokens': rej_audio_inputs})
         
@@ -217,12 +217,12 @@ class DPOTrainer():
             print("Audio Encoding...")
             self.dataset = dataset.map(self.audio_encoding, batched=True, num_proc=1, remove_columns=dataset.column_names, batch_size=16)
             # save tokenized outcome
-            if not os.path.exists('./tokenized_outcome'):
-                os.makedirs('./tokenized_outcome')
-            torch.save(torch.tensor(self.dataset['pref_audio_tokens']), './tokenized_outcome/pref_audio_test.pt')
-            torch.save(torch.tensor(self.dataset['rej_audio_tokens']), './tokenized_outcome/rej_audio_test.pt')
-            torch.save(torch.tensor(self.dataset['input_ids']), './tokenized_outcome/input_ids_test.pt')
-            torch.save(torch.tensor(self.dataset['attention_mask']), './tokenized_outcome/attention_mask_test.pt')
+            if not os.path.exists('../tokenized_outcome'):
+                os.makedirs('../tokenized_outcome')
+            torch.save(torch.tensor(self.dataset['pref_audio_tokens']), '../tokenized_outcome/pref_audio_test.pt')
+            torch.save(torch.tensor(self.dataset['rej_audio_tokens']), '../tokenized_outcome/rej_audio_test.pt')
+            torch.save(torch.tensor(self.dataset['input_ids']), '../tokenized_outcome/input_ids_test.pt')
+            torch.save(torch.tensor(self.dataset['attention_mask']), '../tokenized_outcome/attention_mask_test.pt')
 
         
         data_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.args.batch_size, shuffle=True, collate_fn=default_data_collator)
@@ -304,12 +304,12 @@ def main():
     parser.add_argument("--encoder_path", type=str, default="facebook/encodec_32khz")
     parser.add_argument("--processor_path", type=str, default="facebook/musicgen-small")
     parser.add_argument("--model_path", type=str, default="facebook/musicgen-small")
-    parser.add_argument("--save_model_path", type=str, default="./checkpoints/musicgen-dpo")
+    parser.add_argument("--save_model_path", type=str, default="../checkpoints/musicgen-dpo")
     parser.add_argument("--seed", type=int, default=1225)
     parser.add_argument("--use_wandb", action="store_true")
     parser.add_argument("--wandb_project", type=str, default="musicgen-dpo")
     parser.add_argument("--wandb_run_name", type=str, default="musicgen-dpo-small")
-    parser.add_argument("--clap_ckpt", type=str, default='./clap_model_epoch_29.pth')
+    parser.add_argument("--clap_ckpt", type=str, default='../clap_model_epoch_29.pth')
 
 
     args = parser.parse_args()
@@ -318,9 +318,9 @@ def main():
     if args.use_wandb:
         wandb.login()
         wandb.init(project=args.wandb_project, config=args, name=args.wandb_run_name)
-    if not glob.glob("./tokenized_outcome/*"):
+    if not glob.glob("../tokenized_outcome/*"):
         print("Loading data...")
-        pair_data = get_text_audio('./train_segments_25sec', './output_wav','music_label_genre.csv')
+        pair_data = get_text_audio('../train_segments_25sec', '../output_wav','music_label_genre.csv')
         print(f"Dataset Size:\nPreference Audio: {len(pair_data['pref_audio'])}\nRejected Audio: {len(pair_data['rej_audio'])}\nPrompt Text: {len(pair_data['text'])}")
         dataset = Dataset.from_dict(pair_data)
         print("Data loaded.")
