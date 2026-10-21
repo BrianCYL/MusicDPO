@@ -11,9 +11,6 @@ The project follows a two-stage training procedure:
 2. Fine-tune MusicGen with DPO, while adding a contrastive CLAP loss to improve
    alignment between the prompt and generated music.
 
-The detailed project presentation is available in
-[`figure/MusicDPO.pdf`](./figure/MusicDPO.pdf).
-
 ## Overview
 
 The main data flow is shown below:
