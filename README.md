@@ -238,6 +238,30 @@ model and the LoRA-adapted model. The output sample rate is read from the
 MusicGen configuration, and generation is stochastic because
 `do_sample=True`.
 
+## Sample outcomes
+
+The repository includes example generations in
+[`sample_outcome/`](./sample_outcome). Click a WAV file to open or download it;
+the GitHub file viewer provides an audio player for supported audio files.
+
+### Sample 1
+
+| Experiment | Audio |
+| --- | --- |
+| Fine-tuned MusicGen with CLAP | [sample1_finetune_clap.wav](./sample_outcome/sample1_finetune_clap.wav) |
+| MusicGen without CLAP loss | [sample1_no_clap.wav](./sample_outcome/sample1_no_clap.wav) |
+| No fine-tuning | [sample1_no_finetune.wav](./sample_outcome/sample1_no_finetune.wav) |
+| Pretrained CLAP | [sample1_pretrain_clap.wav](./sample_outcome/sample1_pretrain_clap.wav) |
+
+### Sample 2
+
+| Experiment | Audio |
+| --- | --- |
+| Fine-tuned MusicGen with CLAP | [sample2_finetune_clap.wav](./sample_outcome/sample2_finetune_clap.wav) |
+| MusicGen without CLAP loss | [sample2_no_clap.wav](./sample_outcome/sample2_no_clap.wav) |
+| No fine-tuning | [sample2_no_finetune.wav](./sample_outcome/sample2_no_finetune.wav) |
+| Pretrained CLAP | [sample2_pretrain_clap.wav](./sample_outcome/sample2_pretrain_clap.wav) |
+
 ## Reproducing the pipeline
 
 From the `MusicDPO/` directory:

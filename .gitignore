@@ -10,7 +10,6 @@ checkpoint/
 *.pdf
 *.pptx
 *.zip
-*.wav
 *.bkp
 
 # non-used code scripts
