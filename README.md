@@ -145,12 +145,12 @@ likelihood to preferred audio than rejected audio:
 \right]\right)
 ```
 
-where \(x\) is the text prompt, \(y^+\) is the preferred audio, \(y^-\) is
-the rejected audio, \(\pi_\theta\) is the trainable MusicGen policy, and
-\(\pi_{\mathrm{ref}}\) is the frozen reference model.
+where $x$ is the text prompt, $y^+$ is the preferred audio, $y^-$ is
+the rejected audio, $\pi_\theta$ is the trainable MusicGen policy, and
+$\pi_{\mathrm{ref}}$ is the frozen reference model.
 
 The CLAP term compares generated-audio embeddings with text embeddings using a
-temperature-scaled contrastive objective. For a batch of \(N\) examples, the
+temperature-scaled contrastive objective. For a batch of $N$ examples, the
 implementation uses:
 
 ```math
@@ -163,8 +163,8 @@ s_{ij} = \frac{
 \log\frac{\exp(s_{ii})}{\sum_{j=1}^{N}\exp(s_{ij})},
 ```
 
-where \(\mathbf{a}_i\) is a generated-audio embedding,
-\(\mathbf{t}_j\) is a text embedding, and \(\tau\) is the temperature
+where $\mathbf{a}_i$ is a generated-audio embedding,
+$\mathbf{t}_j$ is a text embedding, and $\tau$ is the temperature
 (0.07 in the implementation). The total training objective is:
 
 ```math
