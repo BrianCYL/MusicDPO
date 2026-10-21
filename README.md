@@ -140,7 +140,7 @@ likelihood to preferred audio than rejected audio:
 \mathcal{L}_{\mathrm{DPO}}
 = -\log \; \sigma\left(
 \beta \left[
-\left(\log \frac{\pi_\theta(y^+ \mid x}{\pi_\theta(y^- \mid x)}\right)
+\left(\log \frac{\pi_\theta(y^+ \mid x)}{\pi_\theta(y^- \mid x)}\right)
 - \left(\log \frac{\pi_{\mathrm{ref}}(y^+ \mid x)}{\pi_{\mathrm{ref}}(y^- \mid x)}\right)
 \right]\right)
 ```
