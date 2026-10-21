@@ -1,0 +1,12 @@
+accelerate
+bitsandbytes
+datasets
+numpy
+pandas
+peft
+scipy
+torch
+torchaudio
+tqdm
+transformers
+wandb
