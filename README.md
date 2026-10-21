@@ -81,7 +81,7 @@ waveform lengths are retained by the current script.
 Start DPO fine-tuning with the default configuration from the project root:
 
 ```bash
-python code/trainer.py
+python trainer.py
 ```
 
 The default training settings are:
@@ -118,13 +118,13 @@ checkpoints/
 To train for more epochs or choose another output directory:
 
 ```bash
-python code/trainer.py \
+python trainer.py \
   --epochs 10 \
   --batch_size 4 \
   --accumulation_steps 8 \
   --lr 2e-4 \
   --save_model_path ./checkpoints/musicgen-dpo \
-  --clap_ckpt ./clap_model_epoch_29.pth
+  --clap_ckpt ../clap_model_epoch_29.pth
 ```
 
 The first run creates a `tokenized_outcome/` directory containing cached text
@@ -134,7 +134,7 @@ files match the trainer's expected names and preprocessing configuration.
 Optional Weights & Biases logging:
 
 ```bash
-python code/trainer.py \
+python trainer.py \
   --use_wandb \
   --wandb_project musicgen-dpo \
   --wandb_run_name musicgen-dpo-small
@@ -142,14 +142,14 @@ python code/trainer.py \
 
 ## Inference
 
-Generate audio from the fixed prompt in `code/inference.py` and compare the
+Generate audio from the fixed prompt in `inference.py` and compare the
 fine-tuned adapter with the original MusicGen model:
 
 ```bash
-python code/inference.py \
-  --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
+python inference.py \
+  --peft_model ../checkpoints/musicgen-dpo_epoch_1 \
   --base_model facebook/musicgen-small \
-  --output_dir ./output
+  --output_dir ../output
 ```
 
 The script uses the prompt:
@@ -175,16 +175,16 @@ model.
 From `MusicDPO/`:
 
 ```bash
-python code/trainer.py \
+python trainer.py \
   --epochs 1 \
   --batch_size 4 \
   --accumulation_steps 8 \
-  --save_model_path ./checkpoints/musicgen-dpo
+  --save_model_path ../checkpoints/musicgen-dpo
 
 python code/inference.py \
-  --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
+  --peft_model ../checkpoints/musicgen-dpo_epoch_1 \
   --base_model facebook/musicgen-small \
-  --output_dir ./output
+  --output_dir ../output
 ```
 
 Exact audio output can vary because inference uses sampling
