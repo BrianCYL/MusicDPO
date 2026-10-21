@@ -1,6 +1,6 @@
 # MusicDPO
 
-MuGenDPO is a preference-optimization pipeline for text-to-music
+MusicDPO is a preference-optimization pipeline for text-to-music
 generation. It adapts [`facebook/musicgen-small`](https://huggingface.co/facebook/musicgen-small)
 with LoRA and Direct Preference Optimization (DPO), using pairs of preferred
 and rejected audio for the same text prompt.
