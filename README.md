@@ -16,23 +16,7 @@ The detailed project presentation is available in
 
 ## Overview
 
-The main data flow is:
-
-```text
-text prompt ──► MusicGen text encoder ──┐
-                                       ├──► MusicGen decoder ──► generated audio
-preferred audio ──► EnCodec tokens ────┘              │
-rejected audio  ──► EnCodec tokens ──────────────────┘
-                                                       │
-                         generated audio ──► EnCodec decoder ──► CLAP
-text prompt ──────────────────────────────────────────► CLAP
-                                                       │
-                         DPO loss + contrastive CLAP loss
-                                       │
-                              LoRA MusicGen update
-```
-
-The visual workflow diagram is shown below:
+The main data flow is shown below:
 
 ![MuGenDPO workflow](./figure/model.png)
 
@@ -152,14 +136,42 @@ The training loop performs the following operations:
 Conceptually, the DPO term encourages the policy to assign higher relative
 likelihood to preferred audio than rejected audio:
 
-```text
-L_DPO = -log sigmoid(beta * ((log pi(preferred) - log pi(rejected))
-                             - (log pi_ref(preferred) - log pi_ref(rejected))))
-```
+$$
+\mathcal{L}_{\mathrm{DPO}}
+= -\log \sigma\left(
+\beta \left[
+\left(\log \pi_\theta(y^+ \mid x)-\log \pi_\theta(y^- \mid x)\right)
+- \left(\log \pi_{\mathrm{ref}}(y^+ \mid x)
+- \log \pi_{\mathrm{ref}}(y^- \mid x)\right)
+\right]\right),
+$$
+
+where \(x\) is the text prompt, \(y^+\) is the preferred audio, \(y^-\) is
+the rejected audio, \(\pi_\theta\) is the trainable MusicGen policy, and
+\(\pi_{\mathrm{ref}}\) is the frozen reference model.
 
 The CLAP term compares generated-audio embeddings with text embeddings using a
-temperature-scaled contrastive objective. The trainer adds this term to the DPO
-loss before updating the LoRA parameters.
+temperature-scaled contrastive objective. For a batch of \(N\) examples, the
+implementation uses:
+
+$$
+s_{ij} = \frac{
+\operatorname{cos}\left(\mathbf{a}_i,\mathbf{t}_j\right)
+}{\tau},
+\qquad
+\mathcal{L}_{\mathrm{CLAP}}
+= -\frac{1}{N}\sum_{i=1}^{N}
+\log\frac{\exp(s_{ii})}{\sum_{j=1}^{N}\exp(s_{ij})},
+$$
+
+where \(\mathbf{a}_i\) is a generated-audio embedding,
+\(\mathbf{t}_j\) is a text embedding, and \(\tau\) is the temperature
+(0.07 in the implementation). The total training objective is:
+
+$$
+\mathcal{L}_{\mathrm{total}}
+= \mathcal{L}_{\mathrm{DPO}}+\mathcal{L}_{\mathrm{CLAP}}.
+$$
 
 Checkpoints are saved after each epoch:
 
@@ -246,21 +258,21 @@ the GitHub file viewer provides an audio player for supported audio files.
 
 ### Sample 1
 
-| Experiment | Audio |
+| Experiment | 🔊 Listen |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [sample1_finetune_clap.wav](https://drive.google.com/file/d/1gBybd6IfGolgjdozfpau9H-n0wM6LSjR/view?usp=sharing) |
-| MusicGen without CLAP loss | [sample1_no_clap.wav](https://drive.google.com/file/d/1F-OILvQn1MoO5aqB7zNLzNcm0gzk4mcK/view?usp=sharing) |
-| No fine-tuning | [sample1_no_finetune.wav](https://drive.google.com/file/d/1PMowQFxEl65751wuYtDM3205iMZ7oXlO/view?usp=sharing) |
-| Pretrained CLAP | [sample1_pretrain_clap.wav](https://drive.google.com/file/d/13AOCNp1RSX1pgAuTQ9gEvmdAbjBfPfIg/view?usp=sharing) |
+| Fine-tuned MusicGen with CLAP | [▶️ Listen](https://drive.google.com/file/d/1gBybd6IfGolgjdozfpau9H-n0wM6LSjR/view?usp=sharing) |
+| MusicGen without CLAP loss | [▶️ Listen](https://drive.google.com/file/d/1F-OILvQn1MoO5aqB7zNLzNcm0gzk4mcK/view?usp=sharing) |
+| No fine-tuning | [▶️ Listen](https://drive.google.com/file/d/1PMowQFxEl65751wuYtDM3205iMZ7oXlO/view?usp=sharing) |
+| Pretrained CLAP | [▶️ Listen](https://drive.google.com/file/d/13AOCNp1RSX1pgAuTQ9gEvmdAbjBfPfIg/view?usp=sharing) |
 
 ### Sample 2
 
-| Experiment | Audio |
+| Experiment | 🔊 Listen |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [sample2_finetune_clap.wav](https://drive.google.com/file/d/1rM4VmpcvNnm6aZq-JwgaX0-vDIlZGV7n/view?usp=sharing) |
-| MusicGen without CLAP loss | [sample2_no_clap.wav](https://drive.google.com/file/d/1w5KtQcTmh1_SO3RkeKuLZH7-0YOrOcv8/view?usp=sharing) |
-| No fine-tuning | [sample2_no_finetune.wav](https://drive.google.com/file/d/1txsi-vwEfIq1HW5HYpLGxnGr8ig-xN6Z/view?usp=sharing) |
-| Pretrained CLAP | [sample2_pretrain_clap.wav](https://drive.google.com/file/d/1XKTqfQKs8FUA6BvV_belbuR-lHpWmcDU/view?usp=sharing) |
+| Fine-tuned MusicGen with CLAP | [▶️ Listen](https://drive.google.com/file/d/1rM4VmpcvNnm6aZq-JwgaX0-vDIlZGV7n/view?usp=sharing) |
+| MusicGen without CLAP loss | [▶️ Listen](https://drive.google.com/file/d/1w5KtQcTmh1_SO3RkeKuLZH7-0YOrOcv8/view?usp=sharing) |
+| No fine-tuning | [▶️ Listen](https://drive.google.com/file/d/1txsi-vwEfIq1HW5HYpLGxnGr8ig-xN6Z/view?usp=sharing) |
+| Pretrained CLAP | [▶️ Listen](https://drive.google.com/file/d/1XKTqfQKs8FUA6BvV_belbuR-lHpWmcDU/view?usp=sharing) |
 
 ## Reproducing the pipeline
 
