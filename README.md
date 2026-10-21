@@ -156,7 +156,7 @@ implementation uses:
 
 $$
 s_{ij} = \frac{
-\operatorname{cos}\left(\mathbf{a}_i,\mathbf{t}_j\right)
+\text{cos}\left(\mathbf{a}_i,\mathbf{t}_j\right)
 }{\tau},
 \qquad
 \mathcal{L}_{\mathrm{CLAP}}
