@@ -257,21 +257,21 @@ the GitHub file viewer provides an audio player for supported audio files.
 
 ### Sample 1
 
-| Experiment | 🔊 Listen |
+| Experiment | Listening Sample |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [▶️ Listen](https://drive.google.com/file/d/1gBybd6IfGolgjdozfpau9H-n0wM6LSjR/view?usp=sharing) |
-| MusicGen without CLAP loss | [▶️ Listen](https://drive.google.com/file/d/1F-OILvQn1MoO5aqB7zNLzNcm0gzk4mcK/view?usp=sharing) |
-| No fine-tuning | [▶️ Listen](https://drive.google.com/file/d/1PMowQFxEl65751wuYtDM3205iMZ7oXlO/view?usp=sharing) |
-| Pretrained CLAP | [▶️ Listen](https://drive.google.com/file/d/13AOCNp1RSX1pgAuTQ9gEvmdAbjBfPfIg/view?usp=sharing) |
+| Fine-tuned MusicGen with CLAP | [▶️](https://drive.google.com/file/d/1gBybd6IfGolgjdozfpau9H-n0wM6LSjR/view?usp=sharing) |
+| MusicGen without CLAP loss | [▶️](https://drive.google.com/file/d/1F-OILvQn1MoO5aqB7zNLzNcm0gzk4mcK/view?usp=sharing) |
+| No fine-tuning | [▶️](https://drive.google.com/file/d/1PMowQFxEl65751wuYtDM3205iMZ7oXlO/view?usp=sharing) |
+| Pretrained CLAP | [▶️](https://drive.google.com/file/d/13AOCNp1RSX1pgAuTQ9gEvmdAbjBfPfIg/view?usp=sharing) |
 
 ### Sample 2
 
-| Experiment | 🔊 Listen |
+| Experiment | Listening Sample |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [▶️ Listen](https://drive.google.com/file/d/1rM4VmpcvNnm6aZq-JwgaX0-vDIlZGV7n/view?usp=sharing) |
-| MusicGen without CLAP loss | [▶️ Listen](https://drive.google.com/file/d/1w5KtQcTmh1_SO3RkeKuLZH7-0YOrOcv8/view?usp=sharing) |
-| No fine-tuning | [▶️ Listen](https://drive.google.com/file/d/1txsi-vwEfIq1HW5HYpLGxnGr8ig-xN6Z/view?usp=sharing) |
-| Pretrained CLAP | [▶️ Listen](https://drive.google.com/file/d/1XKTqfQKs8FUA6BvV_belbuR-lHpWmcDU/view?usp=sharing) |
+| Fine-tuned MusicGen with CLAP | [▶️](https://drive.google.com/file/d/1rM4VmpcvNnm6aZq-JwgaX0-vDIlZGV7n/view?usp=sharing) |
+| MusicGen without CLAP loss | [▶️](https://drive.google.com/file/d/1w5KtQcTmh1_SO3RkeKuLZH7-0YOrOcv8/view?usp=sharing) |
+| No fine-tuning | [▶️](https://drive.google.com/file/d/1txsi-vwEfIq1HW5HYpLGxnGr8ig-xN6Z/view?usp=sharing) |
+| Pretrained CLAP | [▶️](https://drive.google.com/file/d/1XKTqfQKs8FUA6BvV_belbuR-lHpWmcDU/view?usp=sharing) |
 
 ## Reproducing the pipeline
 
