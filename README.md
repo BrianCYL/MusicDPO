@@ -1,112 +1,167 @@
-# MusicDPO
+# MuGenDPO
 
-This project fine-tunes
-[`facebook/musicgen-small`](https://huggingface.co/facebook/musicgen-small)
-with preference pairs using LoRA and Direct Preference Optimization (DPO).
-The training objective combines:
+MuGenDPO is a preference-optimization pipeline for text-to-music
+generation. It adapts [`facebook/musicgen-small`](https://huggingface.co/facebook/musicgen-small)
+with LoRA and Direct Preference Optimization (DPO), using pairs of preferred
+and rejected audio for the same text prompt.
 
-- DPO loss between preferred and rejected audio tokens; and
-- a contrastive CLAP loss between the text prompt and generated audio.
+The project follows a two-stage training procedure:
 
-## Workflow
+1. Fine-tune CLAP to provide a task-specific text-audio similarity signal.
+2. Fine-tune MusicGen with DPO, while adding a contrastive CLAP loss to improve
+   alignment between the prompt and generated music.
 
-The training workflow is shown below.
+The detailed project presentation is available in
+[`figure/MusicDPO.pdf`](./figure/MusicDPO.pdf).
 
-![MusicDPO workflow](./figure/model.png)
+## Overview
+
+The main data flow is:
+
+```text
+text prompt ──► MusicGen text encoder ──┐
+                                       ├──► MusicGen decoder ──► generated audio
+preferred audio ──► EnCodec tokens ────┘              │
+rejected audio  ──► EnCodec tokens ──────────────────┘
+                                                       │
+                         generated audio ──► EnCodec decoder ──► CLAP
+text prompt ──────────────────────────────────────────► CLAP
+                                                       │
+                         DPO loss + contrastive CLAP loss
+                                       │
+                              LoRA MusicGen update
+```
+
+The visual workflow diagram is shown below:
+
+![MuGenDPO workflow](./figure/model.png)
+
+## Project structure
+
+```text
+MusicDPO/
+├── code/
+│   ├── trainer.py              # MusicGen + DPO + CLAP training
+│   ├── trainer_wo_CLAP.py      # DPO-only ablation
+│   ├── inference.py            # Base/fine-tuned audio generation
+│   └── train.sh                # Example multi-run training script
+├── figure/
+│   ├── model.pdf               # Workflow diagram
+│   └── MusicDPO.pdf            # Detailed project presentation
+├── music_label_genre.csv       # Prompt metadata
+├── train_segments_25sec/       # Preferred audio
+├── output_wav/                 # Rejected audio
+├── requirements.txt
+└── clap_model_epoch_29.pth     # Fine-tuned CLAP checkpoint
+```
+
+Run all commands from the `MusicDPO/` project root. The scripts use paths
+relative to this directory.
 
 ## Setup
 
-Install the dependencies listed by running:
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Download the [training data and CLAP checkpoint](#required-files), or obtain
-the corresponding files from the project distribution. The pretrained
-MusicGen, EnCodec, and CLAP models are downloaded automatically from Hugging
-Face on first use.
+Use a GPU environment when possible. The trainer uses 8-bit model loading and
+the paged optimizer provided by `bitsandbytes`. Install a PyTorch and
+TorchAudio build compatible with the local CUDA and operating-system setup if
+the versions selected by `requirements.txt` are unsuitable.
 
-Run commands from the `MusicDPO/code/`. GPU execution is recommended
-because the trainer uses 8-bit model loading and the paged optimizer through
-`bitsandbytes`.
+The following pretrained models are downloaded automatically from Hugging Face
+on first use:
 
-Please note that:
+- `facebook/musicgen-small`
+- `facebook/encodec_32khz`
+- `laion/clap-htsat-unfused`
 
-- The pretrained models are downloaded automatically on first use:
-  `facebook/musicgen-small`, `facebook/encodec_32khz`, and
-  `laion/clap-htsat-unfused`.
-- `clap_model_epoch_29.pth` is a local fine-tuned CLAP checkpoint and must be
-  placed in the project directory before training.
+The local CLAP checkpoint is not downloaded automatically. It must be supplied
+as `clap_model_epoch_29.pth`.
 
-## Required files
+## Data preparation
 
-Place the training data and CLAP checkpoint in the project directory:
-
-```text
-MusicDPO/
-├── code/
-│   ├── trainer.py
-│   ├── trainer_wo_CLAP.py
-│   ├── inference.py
-│   └── train.sh
-├── music_label_genre.csv
-├── train_segments_25sec/
-│   └── *.wav
-├── output_wav/
-│   └── *.wav
-└── clap_model_epoch_29.pth
-```
-
-The `train_segments_25sec/` and `output_wav/` directories are required by
-`code/trainer.py`. The `tokenized_outcome/` and checkpoint directories are
-created during training and do not need to exist beforehand.
-
-The CSV must contain at least:
+The metadata CSV must contain at least:
 
 ```text
 id,prompt
 ```
 
-For each row, `trainer.py` searches for:
+For each CSV row, `code/trainer.py` searches for:
 
 - preferred audio: `train_segments_25sec/{id:04d}_*.wav`
 - rejected audio: `output_wav/{prompt}_*.wav`
 
-Audio is resampled to 32 kHz. Only preferred/rejected pairs with the expected
-waveform lengths are retained by the current script.
+Audio is resampled to 32 kHz. The current implementation keeps only pairs
+whose waveform lengths are 800,000 samples for preferred audio and 817,280
+samples for rejected audio. The number of retained pairs is printed when the
+dataset is prepared.
 
 ## Training
 
-Start DPO fine-tuning with the default configuration from the project root:
+### Stage 1: Fine-tune CLAP
 
-```bash
-python trainer.py
-```
-
-The default training settings are:
+The first stage produces the task-specific checkpoint:
 
 ```text
-epochs:              1
-batch size:          4
-gradient accumulation: 8
-learning rate:       2e-4
-DPO beta:            0.1
-LoRA rank:           8
-LoRA alpha:          8
-LoRA dropout:        0.05
+clap_model_epoch_29.pth
 ```
 
-The trainer:
+This checkpoint is loaded by `code/trainer.py` and used as a frozen evaluator
+of text-audio compatibility during MusicGen training. The current repository
+contains the checkpoint interface and loading code, but does not contain the
+CLAP fine-tuning script. The original CLAP dataset, preprocessing, optimizer,
+training schedule, and checkpoint-saving command therefore need to be
+reconstructed separately.
 
-1. loads preferred/rejected audio and text prompts;
-2. converts audio to EnCodec tokens;
-3. tokenizes the prompts;
-4. applies LoRA adapters to MusicGen query/value projections;
-5. computes DPO and CLAP contrastive losses; and
-6. saves the adapter after each epoch.
+### Stage 2: Fine-tune MusicGen with DPO
 
-Checkpoints are written as:
+Start the default MusicGen training run:
+
+```bash
+python code/trainer.py
+```
+
+The default settings are:
+
+```text
+base model:              facebook/musicgen-small
+epochs:                  1
+batch size:              4
+gradient accumulation:   8
+learning rate:           2e-4
+DPO beta:                0.1
+LoRA rank:               8
+LoRA alpha:              8
+LoRA dropout:            0.05
+CLAP checkpoint:         ./clap_model_epoch_29.pth
+```
+
+The training loop performs the following operations:
+
+1. Loads prompt, preferred-audio, and rejected-audio examples.
+2. Converts the audio examples into EnCodec tokens.
+3. Tokenizes the text prompts with the MusicGen processor.
+4. Adds LoRA adapters to MusicGen `q_proj` and `v_proj` modules.
+5. Computes the policy and reference log probabilities for DPO.
+6. Generates/decodes audio and computes the CLAP text-audio contrastive loss.
+7. Optimizes the MusicGen LoRA parameters and saves an adapter checkpoint.
+
+Conceptually, the DPO term encourages the policy to assign higher relative
+likelihood to preferred audio than rejected audio:
+
+```text
+L_DPO = -log sigmoid(beta * ((log pi(preferred) - log pi(rejected))
+                             - (log pi_ref(preferred) - log pi_ref(rejected))))
+```
+
+The CLAP term compares generated-audio embeddings with text embeddings using a
+temperature-scaled contrastive objective. The trainer adds this term to the DPO
+loss before updating the LoRA parameters.
+
+Checkpoints are saved after each epoch:
 
 ```text
 checkpoints/
@@ -115,79 +170,101 @@ checkpoints/
     └── adapter_model.safetensors
 ```
 
-To train for more epochs or choose another output directory:
+To override the default configuration:
 
 ```bash
-python trainer.py \
+python code/trainer.py \
   --epochs 10 \
   --batch_size 4 \
   --accumulation_steps 8 \
   --lr 2e-4 \
   --save_model_path ./checkpoints/musicgen-dpo \
-  --clap_ckpt ../clap_model_epoch_29.pth
+  --clap_ckpt ./clap_model_epoch_29.pth
 ```
 
-The first run creates a `tokenized_outcome/` directory containing cached text
-and audio-token tensors. Subsequent runs can reuse these tensors when the cache
-files match the trainer's expected names and preprocessing configuration.
-
-Optional Weights & Biases logging:
+The first run may create `tokenized_outcome/` for cached text and audio-token
+tensors. Optional Weights & Biases logging is enabled with:
 
 ```bash
-python trainer.py \
+python code/trainer.py \
   --use_wandb \
   --wandb_project musicgen-dpo \
   --wandb_run_name musicgen-dpo-small
 ```
 
-## Inference
-
-Generate audio from the fixed prompt in `inference.py` and compare the
-fine-tuned adapter with the original MusicGen model:
+The provided [`code/train.sh`](./code/train.sh) shows an example of running
+15-epoch experiments with two learning rates and separate checkpoint
+directories:
 
 ```bash
-python inference.py \
-  --peft_model ../checkpoints/musicgen-dpo_epoch_1 \
-  --base_model facebook/musicgen-small \
-  --output_dir ../output
+sh code/train.sh
 ```
 
-The script uses the prompt:
+### DPO-only ablation
+
+[`code/trainer_wo_CLAP.py`](./code/trainer_wo_CLAP.py) contains the
+corresponding DPO-only variant. It omits CLAP model loading and the additional
+CLAP loss, so it can be used to compare preference optimization with and
+without the semantic alignment objective.
+
+## Inference
+
+After training, generate music from the fixed prompt in
+`code/inference.py`:
+
+```bash
+python code/inference.py \
+  --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
+  --base_model facebook/musicgen-small \
+  --output_dir ./output
+```
+
+The current script uses:
 
 ```text
 Solo Violin in D major with Baroque style
 ```
 
-It writes both generations to:
+It writes two WAV files:
 
 ```text
 output/
-├── musicgen_out.wav       # fine-tuned MusicGen with the LoRA adapter
-└── musicgen_ft_out.wav    # base MusicGen output
+├── musicgen_out.wav
+└── musicgen_ft_out.wav
 ```
 
-The output sample rate is read from the MusicGen configuration. Use the
-generated WAV files to compare the preference-trained model with the base
-model.
+These files are intended for an audio comparison between the base MusicGen
+model and the LoRA-adapted model. The output sample rate is read from the
+MusicGen configuration, and generation is stochastic because
+`do_sample=True`.
 
-## Reproducing the provided result
+## Reproducing the pipeline
 
-From `MusicDPO/`:
+From the `MusicDPO/` directory:
 
-```bash
-python trainer.py \
-  --epochs 1 \
-  --batch_size 4 \
-  --accumulation_steps 8 \
-  --save_model_path ../checkpoints/musicgen-dpo
+1. Place the preferred/rejected audio data and `music_label_genre.csv` in the
+   locations described above.
+2. Place the fine-tuned CLAP checkpoint at
+   `./clap_model_epoch_29.pth`.
+3. Run MusicGen DPO training:
 
-python code/inference.py \
-  --peft_model ../checkpoints/musicgen-dpo_epoch_1 \
-  --base_model facebook/musicgen-small \
-  --output_dir ../output
-```
+   ```bash
+   python code/trainer.py \
+     --epochs 1 \
+     --batch_size 4 \
+     --accumulation_steps 8 \
+     --save_model_path ./checkpoints/musicgen-dpo
+   ```
 
-Exact audio output can vary because inference uses sampling
-(`do_sample=True`). The training and generation results also depend on the
-versions of PyTorch, Transformers, PEFT, CUDA, and the downloaded model
+4. Generate the comparison samples:
+
+   ```bash
+   python code/inference.py \
+     --peft_model ./checkpoints/musicgen-dpo_epoch_1 \
+     --base_model facebook/musicgen-small \
+     --output_dir ./output
+   ```
+
+Exact audio outputs can vary because inference is sampled. Results also depend
+on the versions of PyTorch, Transformers, PEFT, CUDA, and the downloaded model
 weights.
