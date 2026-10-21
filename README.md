@@ -241,26 +241,26 @@ MusicGen configuration, and generation is stochastic because
 ## Sample outcomes
 
 The repository includes example generations in
-[`sample_outcome/`](./sample_outcome). Click a WAV file to open or download it;
+[`sample_outcome/`](https://drive.google.com/drive/folders/1eCj3fIKtIuspHy8SR4x7K3S768wHbaMX?usp=sharing). Click a WAV file to open or download it;
 the GitHub file viewer provides an audio player for supported audio files.
 
 ### Sample 1
 
 | Experiment | Audio |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [sample1_finetune_clap.wav](./sample_outcome/sample1_finetune_clap.wav) |
-| MusicGen without CLAP loss | [sample1_no_clap.wav](./sample_outcome/sample1_no_clap.wav) |
-| No fine-tuning | [sample1_no_finetune.wav](./sample_outcome/sample1_no_finetune.wav) |
-| Pretrained CLAP | [sample1_pretrain_clap.wav](./sample_outcome/sample1_pretrain_clap.wav) |
+| Fine-tuned MusicGen with CLAP | [sample1_finetune_clap.wav](https://drive.google.com/file/d/1gBybd6IfGolgjdozfpau9H-n0wM6LSjR/view?usp=sharing) |
+| MusicGen without CLAP loss | [sample1_no_clap.wav](https://drive.google.com/file/d/1F-OILvQn1MoO5aqB7zNLzNcm0gzk4mcK/view?usp=sharing) |
+| No fine-tuning | [sample1_no_finetune.wav](https://drive.google.com/file/d/1PMowQFxEl65751wuYtDM3205iMZ7oXlO/view?usp=sharing) |
+| Pretrained CLAP | [sample1_pretrain_clap.wav](https://drive.google.com/file/d/13AOCNp1RSX1pgAuTQ9gEvmdAbjBfPfIg/view?usp=sharing) |
 
 ### Sample 2
 
 | Experiment | Audio |
 | --- | --- |
-| Fine-tuned MusicGen with CLAP | [sample2_finetune_clap.wav](./sample_outcome/sample2_finetune_clap.wav) |
-| MusicGen without CLAP loss | [sample2_no_clap.wav](./sample_outcome/sample2_no_clap.wav) |
-| No fine-tuning | [sample2_no_finetune.wav](./sample_outcome/sample2_no_finetune.wav) |
-| Pretrained CLAP | [sample2_pretrain_clap.wav](./sample_outcome/sample2_pretrain_clap.wav) |
+| Fine-tuned MusicGen with CLAP | [sample2_finetune_clap.wav](https://drive.google.com/file/d/1rM4VmpcvNnm6aZq-JwgaX0-vDIlZGV7n/view?usp=sharing) |
+| MusicGen without CLAP loss | [sample2_no_clap.wav](https://drive.google.com/file/d/1w5KtQcTmh1_SO3RkeKuLZH7-0YOrOcv8/view?usp=sharing) |
+| No fine-tuning | [sample2_no_finetune.wav](https://drive.google.com/file/d/1txsi-vwEfIq1HW5HYpLGxnGr8ig-xN6Z/view?usp=sharing) |
+| Pretrained CLAP | [sample2_pretrain_clap.wav](https://drive.google.com/file/d/1XKTqfQKs8FUA6BvV_belbuR-lHpWmcDU/view?usp=sharing) |
 
 ## Reproducing the pipeline
 

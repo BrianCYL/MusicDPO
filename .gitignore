@@ -11,6 +11,7 @@ checkpoint/
 *.pptx
 *.zip
 *.bkp
+*.wav
 
 # non-used code scripts
 DPO_trainer.py
